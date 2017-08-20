@@ -111,7 +111,7 @@ var Post_Side_Notes_Tab = function () {
 		value: function ready() {
 			new Post_Side_Posts_BBC_Tab({
 
-				title: "Notes",
+				title: "Notes (0)",
 				content: this.build_tab(),
 				id: "post-side-notes-bbc-tab",
 				css: {}
@@ -121,6 +121,8 @@ var Post_Side_Notes_Tab = function () {
 			this.bind_remove_event();
 			this.bind_key_events();
 			this.bind_submit();
+
+			this.update_tab_count();
 		}
 	}, {
 		key: "build_tab",
@@ -265,6 +267,8 @@ var Post_Side_Notes_Tab = function () {
 			}
 
 			$counter.html(left);
+
+			Post_Side_Notes_Tab.update_tab_count();
 		}
 	}, {
 		key: "bind_submit",
@@ -272,8 +276,7 @@ var Post_Side_Notes_Tab = function () {
 			var $form = $("form.form_thread_new, form.form_post_new, form.form_post_edit, form.form_thread_edit");
 
 			if ($form.length > 0) {
-				var klass = $form.attr("class");
-				var hook = klass.split("form_")[1];
+				var hook = $form.attr("class").match(/form_(\w+_\w+)/i)[1];
 
 				if (hook) {
 					$form.on("submit", this.set_on.bind(this, hook));
@@ -316,7 +319,14 @@ var Post_Side_Notes_Tab = function () {
 			var post_id = post && post.id ? parseInt(post.id, 10) : null;
 			var contents = this.fetch_contents();
 
+			console.log(contents);
+
 			this.key.set_on(hook, post_id, contents);
+		}
+	}, {
+		key: "update_tab_count",
+		value: function update_tab_count() {
+			$("#menu-item-post-side-notes-bbc-tab a").html("Notes (" + this.fetch_contents().length + ")");
 		}
 	}]);
 
