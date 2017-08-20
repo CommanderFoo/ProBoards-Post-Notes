@@ -44,17 +44,29 @@ class Post_Side_Notes_Tab {
 
 		if(current_notes.length){
 			for(let n = 0, l = current_notes.length; n < l; ++ n){
-				html += this.create_note_box(current_notes[n]);
+				html += this.create_note_box(current_notes[n], false);
 			}
 		}
 
 		if(space_left){
-			html += this.create_note_box();
+			html += this.create_note_box("", false);
 		}
 
 		html += "</div>";
 
-		return $(html);
+		let $html = $(html);
+
+		this.bind_over_out($html);
+
+		return $html;
+	}
+
+	static bind_over_out($html = ""){
+		$html.find(".bbc-note-box-remove").on("mouseover", function(){
+			$(this).parent().addClass("bbc-note-box-over");
+		}).on("mouseout", function(){
+			$(this).parent().removeClass("bbc-note-box-over");
+		});
 	}
 
 	static bind_remove_event($elem = null){
@@ -64,18 +76,23 @@ class Post_Side_Notes_Tab {
 			let $parent = $(this).parent();
 			let $wrapper = $parent.parent();
 
-			$parent.remove();
+			$parent.fadeOut("slow", () => {
+				$parent.remove();
 
-			Post_Side_Notes_Tab.update_space();
+				Post_Side_Notes_Tab.update_space();
 
-			if($wrapper.find(".bbc-note-box").length == 0){
-				let $box = $(Post_Side_Notes_Tab.create_note_box());
+				if($wrapper.find(".bbc-note-box").length == 0){
+					let $box = $(Post_Side_Notes_Tab.create_note_box());
 
-				Post_Side_Notes_Tab.bind_remove_event($box);
-				Post_Side_Notes_Tab.bind_key_events($box);
+					Post_Side_Notes_Tab.bind_remove_event($box);
+					Post_Side_Notes_Tab.bind_key_events($box);
+					Post_Side_Notes_Tab.bind_over_out($box);
 
-				$wrapper.append($box);
-			}
+					$wrapper.append($box);
+
+					$box.fadeIn();
+				}
+			});
 		});
 	}
 
@@ -85,10 +102,11 @@ class Post_Side_Notes_Tab {
 		$textareas.on("keydown keyup", this.update_space);
 	}
 
-	static create_note_box(content = ""){
+	static create_note_box(content = "", hidden = true){
 		let html = "";
+		let display = (hidden)? " style='display: none;'" : "";
 
-		html += "<span class='bbc-note-box'><textarea>" + Post_Side_Notes.html_encode(content) + "</textarea><img src='" + Post_Side_Notes.images.remove + "' /></span>";
+		html += "<span" + display + " class='bbc-note-box'><textarea>" + Post_Side_Notes.html_encode(content) + "</textarea><img class='bbc-note-box-remove' src='" + Post_Side_Notes.images.remove + "' /></span>";
 
 		return html;
 	}
@@ -120,8 +138,11 @@ class Post_Side_Notes_Tab {
 
 			Post_Side_Notes_Tab.bind_remove_event($box);
 			Post_Side_Notes_Tab.bind_key_events($box);
+			Post_Side_Notes_Tab.bind_over_out($box);
 
 			$(".bbc-note-box-wrapper").append($box);
+
+			$box.fadeIn("slow");
 		}
 
 		let used = JSON.stringify(contents).length;
