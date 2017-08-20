@@ -1,4 +1,4 @@
-class Post_Side_Posts_BBC_Tab {
+class Post_BBC_Tab {
 
 	constructor({title = "My Tab", content = "", id = "", css = null, events = {}} = {}){
 		id = id || + new Date();

@@ -1,3 +1,156 @@
+class Post_BBC_Tab {
+
+	constructor({title = "My Tab", content = "", id = "", css = null, events = {}} = {}){
+		id = id || + new Date();
+
+		let $wysiwyg_tabs = $(".editor ul.wysiwyg-tabs");
+		let $tab = $("<li id='menu-item-" + id + "'><a href='#'>" + title + "</a></li>");
+		let $tab_content = $("<div id='" + id + "'></div>").append(content);
+
+		$wysiwyg_tabs.append($tab);
+
+		if(css && typeof css == "object"){
+			$tab_content.css(css);
+		}
+
+		$tab_content.hide().insertBefore($wysiwyg_tabs);
+
+		$wysiwyg_tabs.find("li").click(function(e){
+			let $active = $(this);
+
+			e.preventDefault();
+
+			$active.parent().find("li").removeClass("ui-active");
+			$active.addClass("ui-active");
+
+			$active.parent().find("li").each(function(){
+				let id = $(this).attr("id");
+
+				if(id.match(/bbcode|visual/i)){
+					$(".editor .ui-wysiwyg .editors").hide();
+				} else {
+					if($active.attr("id") == id){
+						return;
+					}
+
+					let selector = "";
+
+					if(id){
+						selector = "#" + id.split("menu-item-")[1];
+					}
+
+					if($(selector).length){
+						if(events && events.hide){
+							if(events.context){
+								events.hide.bind(events.context)($tab, $tab_content);
+							} else {
+								events.hide($tab, $tab_content);
+							}
+						}
+
+						$(selector).hide();
+					}
+				}
+			});
+
+			let id = $active.attr("id");
+			let selector = "";
+
+			if(id){
+				selector = "#" + id.split("menu-item-")[1];
+			}
+
+			if(id.match(/bbcode|visual/i)){
+				$(".editor .ui-wysiwyg .editors").show();
+			} else if($(selector).length){
+				if(events && events.show){
+					if(events.context){
+						events.show.bind(events.context)($tab, $tab_content);
+					} else {
+						events.show($tab, $tab_content);
+					}
+				}
+
+				$(selector).show();
+			}
+		});
+
+		return $tab_content;
+	}
+
+}
+
+class Post_Notes {
+
+	static init(){
+		this.PLUGIN_ID = "pd_post_notes";
+		this.PLUGIN_KEY = "pd_post_notes";
+		this.MAX_KEY_SPACE = parseInt(pb.data("plugin_max_key_length"), 10);
+
+		this.images = {};
+
+		this._textarea = document.createElement("textarea");
+
+		this.setup();
+
+		Post_Notes_Posts.init();
+		Post_Notes_Tab.init();
+	}
+
+	static setup(){
+		let plugin = pb.plugin.get(this.PLUGIN_ID);
+
+		if(plugin && plugin.settings){
+			let plugin_settings = plugin.settings;
+
+			this.images = plugin.images;
+		}
+	}
+
+	static html_encode(str = "", decode_first = false){
+		str = (decode_first)? this.html_decode(str) : str;
+
+		return $("<div />").text(str).html();
+	}
+
+	static html_decode(str = ""){
+		this._textarea.innerHTML = str;
+
+		let val = this._textarea.value;
+
+		this._textarea.innerHTML = "";
+
+		return val;
+	}
+
+}
+
+class Post_Notes_Posts {
+
+	static init(){
+		let thread_location_check = (
+
+			pb.data("route").name == "search_results" ||
+			pb.data("route").name == "thread" ||
+			pb.data("route").name == "list_posts" ||
+			pb.data("route").name == "permalink" ||
+			pb.data("route").name == "all_recent_posts" ||
+			pb.data("route").name == "recent_posts" ||
+			pb.data("route").name == "posts_by_ip"
+
+		);
+
+		if(thread_location_check){
+			$(this.ready.bind(this));
+		}
+	}
+
+	static ready(){
+		console.log(2);
+	}
+
+}
+
 class Post_Notes_Tab {
 
 	static init(){
@@ -220,3 +373,5 @@ class Post_Notes_Tab {
 	}
 
 }
+
+Post_Notes.init();

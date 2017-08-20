@@ -1,8 +1,8 @@
-class Post_Side_Notes {
+class Post_Notes {
 
 	static init(){
-		this.PLUGIN_ID = "pd_post_side_notes";
-		this.PLUGIN_KEY = "pd_post_side_notes";
+		this.PLUGIN_ID = "pd_post_notes";
+		this.PLUGIN_KEY = "pd_post_notes";
 		this.MAX_KEY_SPACE = parseInt(pb.data("plugin_max_key_length"), 10);
 
 		this.images = {};
@@ -11,8 +11,8 @@ class Post_Side_Notes {
 
 		this.setup();
 
-		Post_Side_Notes_Posts.init();
-		Post_Side_Notes_Tab.init();
+		Post_Notes_Posts.init();
+		Post_Notes_Tab.init();
 	}
 
 	static setup(){

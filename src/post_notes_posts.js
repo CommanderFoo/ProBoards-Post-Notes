@@ -1,4 +1,4 @@
-class Post_Side_Notes_Posts {
+class Post_Notes_Posts {
 
 	static init(){
 		let thread_location_check = (
