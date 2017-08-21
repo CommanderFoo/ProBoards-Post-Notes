@@ -123,6 +123,24 @@ class Post_Notes {
 		return val;
 	}
 
+	static fetch_notes(post_id){
+		if(!post_id){
+			return [];
+		}
+
+		let data = pb.plugin.key(Post_Notes.PLUGIN_KEY).get(post_id);
+
+		if(data && Array.isArray(data)){
+			return data;
+		}
+
+		return [];
+	}
+
+	static parse_note(note = ""){
+		return pb.text.nl2br(this.html_encode(note));
+	}
+
 }
 
 class Post_Notes_Posts {
@@ -146,7 +164,43 @@ class Post_Notes_Posts {
 	}
 
 	static ready(){
-		console.log(2);
+		this.add_notes_to_posts();
+
+		pb.events.on("afterSearch", this.add_notes_to_posts);
+	}
+
+	static add_notes_to_posts(){
+		let $post_rows = $("tr.item.post");
+
+		$post_rows.each(function(){
+			let post_id = parseInt($(this).attr("id").split("-")[1] || "", 10);
+
+			if(post_id){
+				let post_notes = Post_Notes.fetch_notes(post_id);
+
+				if(post_notes.length > 0){
+					let $article = $(this).find("article");
+
+					if($article.length == 1){
+						let notes = Post_Notes_Posts.create_cited_notes(post_notes);
+
+						$article.append(notes);
+					}
+				}
+			}
+		})
+	}
+
+	static create_cited_notes(notes = []){
+		let html = "<div class='post-notes'><ol>";
+
+		for(let n = 0, l = notes.length; n < l; ++ n){
+			html += "<li>" + Post_Notes.parse_note(notes[n]) + "</li>";
+		}
+
+		html += "</ol></div>";
+
+		return html;
 	}
 
 }
@@ -191,7 +245,7 @@ class Post_Notes_Tab {
 	static build_tab(){
 		let post = pb.data("page").post;
 		let post_id = (post && post.id)? parseInt(post.id, 10) : null;
-		let current_notes = this.fetch_notes(post_id);
+		let current_notes = Post_Notes.fetch_notes(post_id);
 		let space_left = Post_Notes.MAX_KEY_SPACE - JSON.stringify(current_notes).length;
 		let html = "<div class='bbc-notes-header'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>";
 
@@ -264,20 +318,6 @@ class Post_Notes_Tab {
 		html += "<span" + display + " class='bbc-note-box'><textarea>" + Post_Notes.html_encode(content) + "</textarea><img class='bbc-note-box-remove' src='" + Post_Notes.images.remove + "' /></span>";
 
 		return html;
-	}
-
-	static fetch_notes(post_id){
-		if(!post_id){
-			return [];
-		}
-
-		let data = pb.plugin.key(Post_Notes.PLUGIN_KEY).get(post_id);
-
-		if(data && Array.isArray(data)){
-			return data;
-		}
-
-		return [];
 	}
 
 	static update_space(){

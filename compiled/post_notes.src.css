@@ -91,3 +91,23 @@
 	border-color: #8d0004;
 
 }
+
+article .post-notes {
+
+	margin-left: 45px;
+	margin-top: 50px;
+	font-size: 11px;
+
+}
+
+article .post-notes ol {
+
+	list-style-type: decimal;
+
+}
+
+article .post-notes ol li {
+
+	margin-bottom: 7px;
+
+}

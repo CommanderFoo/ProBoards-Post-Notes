@@ -38,7 +38,7 @@ class Post_Notes_Tab {
 	static build_tab(){
 		let post = pb.data("page").post;
 		let post_id = (post && post.id)? parseInt(post.id, 10) : null;
-		let current_notes = this.fetch_notes(post_id);
+		let current_notes = Post_Notes.fetch_notes(post_id);
 		let space_left = Post_Notes.MAX_KEY_SPACE - JSON.stringify(current_notes).length;
 		let html = "<div class='bbc-notes-header'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>";
 
@@ -111,20 +111,6 @@ class Post_Notes_Tab {
 		html += "<span" + display + " class='bbc-note-box'><textarea>" + Post_Notes.html_encode(content) + "</textarea><img class='bbc-note-box-remove' src='" + Post_Notes.images.remove + "' /></span>";
 
 		return html;
-	}
-
-	static fetch_notes(post_id){
-		if(!post_id){
-			return [];
-		}
-
-		let data = pb.plugin.key(Post_Notes.PLUGIN_KEY).get(post_id);
-
-		if(data && Array.isArray(data)){
-			return data;
-		}
-
-		return [];
 	}
 
 	static update_space(){

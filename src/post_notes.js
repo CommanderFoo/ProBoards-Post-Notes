@@ -41,4 +41,22 @@ class Post_Notes {
 		return val;
 	}
 
+	static fetch_notes(post_id){
+		if(!post_id){
+			return [];
+		}
+
+		let data = pb.plugin.key(Post_Notes.PLUGIN_KEY).get(post_id);
+
+		if(data && Array.isArray(data)){
+			return data;
+		}
+
+		return [];
+	}
+
+	static parse_note(note = ""){
+		return pb.text.nl2br(this.html_encode(note));
+	}
+
 }

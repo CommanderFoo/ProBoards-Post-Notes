@@ -154,6 +154,28 @@ var Post_Notes = function () {
 
 			return val;
 		}
+	}, {
+		key: "fetch_notes",
+		value: function fetch_notes(post_id) {
+			if (!post_id) {
+				return [];
+			}
+
+			var data = pb.plugin.key(Post_Notes.PLUGIN_KEY).get(post_id);
+
+			if (data && Array.isArray(data)) {
+				return data;
+			}
+
+			return [];
+		}
+	}, {
+		key: "parse_note",
+		value: function parse_note() {
+			var note = arguments.length <= 0 || arguments[0] === undefined ? "" : arguments[0];
+
+			return pb.text.nl2br(this.html_encode(note));
+		}
 	}]);
 
 	return Post_Notes;
@@ -176,7 +198,47 @@ var Post_Notes_Posts = function () {
 	}, {
 		key: "ready",
 		value: function ready() {
-			console.log(2);
+			this.add_notes_to_posts();
+
+			pb.events.on("afterSearch", this.add_notes_to_posts);
+		}
+	}, {
+		key: "add_notes_to_posts",
+		value: function add_notes_to_posts() {
+			var $post_rows = $("tr.item.post");
+
+			$post_rows.each(function () {
+				var post_id = parseInt($(this).attr("id").split("-")[1] || "", 10);
+
+				if (post_id) {
+					var post_notes = Post_Notes.fetch_notes(post_id);
+
+					if (post_notes.length > 0) {
+						var $article = $(this).find("article");
+
+						if ($article.length == 1) {
+							var notes = Post_Notes_Posts.create_cited_notes(post_notes);
+
+							$article.append(notes);
+						}
+					}
+				}
+			});
+		}
+	}, {
+		key: "create_cited_notes",
+		value: function create_cited_notes() {
+			var notes = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
+
+			var html = "<div class='post-notes'><ol>";
+
+			for (var n = 0, l = notes.length; n < l; ++n) {
+				html += "<li>" + Post_Notes.parse_note(notes[n]) + "</li>";
+			}
+
+			html += "</ol></div>";
+
+			return html;
 		}
 	}]);
 
@@ -222,7 +284,7 @@ var Post_Notes_Tab = function () {
 		value: function build_tab() {
 			var post = pb.data("page").post;
 			var post_id = post && post.id ? parseInt(post.id, 10) : null;
-			var current_notes = this.fetch_notes(post_id);
+			var current_notes = Post_Notes.fetch_notes(post_id);
 			var space_left = Post_Notes.MAX_KEY_SPACE - JSON.stringify(current_notes).length;
 			var html = "<div class='bbc-notes-header'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>";
 
@@ -308,21 +370,6 @@ var Post_Notes_Tab = function () {
 			html += "<span" + display + " class='bbc-note-box'><textarea>" + Post_Notes.html_encode(content) + "</textarea><img class='bbc-note-box-remove' src='" + Post_Notes.images.remove + "' /></span>";
 
 			return html;
-		}
-	}, {
-		key: "fetch_notes",
-		value: function fetch_notes(post_id) {
-			if (!post_id) {
-				return [];
-			}
-
-			var data = pb.plugin.key(Post_Notes.PLUGIN_KEY).get(post_id);
-
-			if (data && Array.isArray(data)) {
-				return data;
-			}
-
-			return [];
 		}
 	}, {
 		key: "update_space",
