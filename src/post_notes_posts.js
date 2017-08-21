@@ -32,22 +32,82 @@ class Post_Notes_Posts {
 
 			if(post_id){
 				let post_notes = Post_Notes.fetch_notes(post_id);
+				let notes = post_notes.n || [];
+				let type = parseInt(post_notes.t || 1, 10);
 
-				if(post_notes.length > 0){
+				if(notes.length > 0){
 					let $article = $(this).find("article");
 
 					if($article.length == 1){
-						let notes = Post_Notes_Posts.create_cited_notes(post_notes);
+						let the_notes = Post_Notes_Posts.create_notes(notes, type);
 
-						$article.append(notes);
+						$article.append(the_notes);
 					}
 				}
 			}
 		})
 	}
 
-	static create_cited_notes(notes = []){
-		let html = "<div class='post-notes'><ol>";
+	static fetch_list_type(type = 2){
+		let list_type = "";
+
+		"Circle Inline List",
+			"Decimal Inline List",
+			"Decimal Leading Zero List",
+			"Disc Inline List",
+			"Lower Alpha Inline List",
+			"Lower Greek Inline List",
+			"Lower Roman Inline List",
+			"Square Inline List",
+			"Upper Alpha Inline List",
+			"Upper Roman Inline List"
+
+		switch(type){
+
+			case 1 :
+				list_type = "circle";
+				break;
+
+			case 3 :
+				list_type = "decimal-leading-zero";
+				break;
+
+			case 4 :
+				list_type = "disc";
+				break;
+
+			case 5 :
+				list_type = "lower-alpha";
+				break;
+
+			case 6 :
+				list_type = "lower-greek";
+				break;
+
+			case 7 :
+				list_type = "lower-lower-roman";
+				break;
+
+			case 8 :
+				list_type = "square";
+				break;
+
+			case 9 :
+				list_type = "upper-alpha";
+				break;
+
+			case 10 :
+				list_type = "upper-roman";
+				break;
+
+		}
+
+		return list_type;
+	}
+
+	static create_notes(notes = [], type = 1){
+		let type_class = this.fetch_list_type(type);
+		let html = "<div class='post-notes'><ol class='" + type_class + "'>";
 
 		for(let n = 0, l = notes.length; n < l; ++ n){
 			html += "<li>" + Post_Notes.parse_note(notes[n]) + "</li>";

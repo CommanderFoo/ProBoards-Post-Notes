@@ -29,7 +29,9 @@
 	font-size: 11px;
 	border-bottom: 1px solid #E6E6E6;
 	background-color: #f6f6f6;;
-	padding: 6px 6px 9px 6px;
+	padding: 6px;
+	display: flex;
+	justify-content: space-between;
 
 }
 
@@ -103,6 +105,60 @@ article .post-notes {
 article .post-notes ol {
 
 	list-style-type: decimal;
+
+}
+
+article .post-notes ol.disc {
+
+	list-style-type: disc;
+
+}
+
+article .post-notes ol.circle {
+
+	list-style-type: circle;
+
+}
+
+article .post-notes ol.square {
+
+	list-style-type: square;
+
+}
+
+article .post-notes ol.decimal-leading-zero {
+
+	list-style-type: decimal-leading-zero;
+
+}
+
+article .post-notes ol.lower-roman {
+
+	list-style-type: lower-roman;
+
+}
+
+article .post-notes ol.upper-roman {
+
+	list-style-type: upper-roman;
+
+}
+
+article .post-notes ol.lower-greek {
+
+	list-style-type: lower-greek;
+
+}
+
+article .post-notes ol.lower-alpha {
+
+	list-style-type: lower-alpha;
+
+}
+
+article .post-notes ol.upper-alpha {
+
+	list-style-type: upper-alpha;
 
 }
 

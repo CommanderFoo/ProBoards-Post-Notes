@@ -43,16 +43,16 @@ class Post_Notes {
 
 	static fetch_notes(post_id){
 		if(!post_id){
-			return [];
+			return {};
 		}
 
 		let data = pb.plugin.key(Post_Notes.PLUGIN_KEY).get(post_id);
 
-		if(data && Array.isArray(data)){
+		if(data && data.n && data.t){
 			return data;
 		}
 
-		return [];
+		return {};
 	}
 
 	static parse_note(note = ""){

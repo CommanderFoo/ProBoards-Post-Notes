@@ -38,13 +38,15 @@ class Post_Notes_Tab {
 	static build_tab(){
 		let post = pb.data("page").post;
 		let post_id = (post && post.id)? parseInt(post.id, 10) : null;
-		let current_notes = Post_Notes.fetch_notes(post_id);
-		let space_left = Post_Notes.MAX_KEY_SPACE - JSON.stringify(current_notes).length;
-		let html = "<div class='bbc-notes-header'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>";
+		let notes_data = Post_Notes.fetch_notes(post_id);
+		let current_notes = notes_data.n || [];
+		let current_type = parseInt(notes_data.t, 10) || 2;
+		let space_left = Post_Notes.MAX_KEY_SPACE - JSON.stringify(notes_data).length;
+		let html = "<div class='bbc-notes-header'><div class='bbc-post-notes-info'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>" + this.create_type_drop_down(current_type) + "</div>";
 
 		html += "<div class='bbc-note-box-wrapper'>";
 
-		if(current_notes.length){
+		if(current_notes.length > 0){
 			for(let n = 0, l = current_notes.length; n < l; ++ n){
 				html += this.create_note_box(current_notes[n], false);
 			}
@@ -61,6 +63,38 @@ class Post_Notes_Tab {
 		this.bind_over_out($html);
 
 		return $html;
+	}
+
+	static create_type_drop_down(selected = 1){
+		let html = "<div class='bbc-post-notes-type-wrapper'><strong>List Display Type: </strong>";
+		let options = [
+
+			"Circle Inline List",
+			"Decimal Inline List",
+			"Decimal Leading Zero List",
+			"Disc Inline List",
+			"Lower Alpha Inline List",
+			"Lower Greek Inline List",
+			"Lower Roman Inline List",
+			"Square Inline List",
+			"Upper Alpha Inline List",
+			"Upper Roman Inline List"
+
+		];
+
+		html += "<select id='post-notes-display-type'>";
+
+		for(let o = 0, l = options.length; o < l; ++ o){
+			let sel = ((o + 1) == selected)? " selected='selected'" : "";
+
+			html += "<option" + sel + " value='" + (o + 1) + "'>" + options[o] + "</option>";
+		}
+
+		html += "</select>";
+
+		html += "</div>";
+
+		return html;
 	}
 
 	static bind_over_out($html = ""){
@@ -181,7 +215,7 @@ class Post_Notes_Tab {
 
 	static over_space(){
 		let contents = this.fetch_contents();
-		let used = JSON.stringify(contents).length;
+		let used = JSON.stringify({n: contents, t: 1}).length;
 		let left = Post_Notes.MAX_KEY_SPACE - used;
 
 		if(left < 0){
@@ -195,10 +229,16 @@ class Post_Notes_Tab {
 		let post = pb.data("page").post;
 		let post_id = (post && post.id)? parseInt(post.id, 10) : null;
 		let contents = this.fetch_contents();
+		let type = parseInt($("#post-notes-display-type").find(":selected").val() || 1, 10);
 
-		console.log(contents);
+		type = (type < 1 || type > 10)? 2 : type;
 
-		this.key.set_on(hook, post_id, contents);
+		this.key.set_on(hook, post_id, {
+
+			n: contents,
+			t: type
+
+		});
 	}
 
 	static update_tab_count(){
