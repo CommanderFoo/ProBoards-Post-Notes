@@ -167,3 +167,9 @@ article .post-notes ol li {
 	margin-bottom: 7px;
 
 }
+
+.post-note-dialog {
+
+	position: fixed;
+
+}
