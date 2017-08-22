@@ -219,9 +219,9 @@ var Post_Notes_Posts = function () {
 						var $article = $(this).find("article");
 
 						if ($article.length == 1) {
-							var the_notes = Post_Notes_Posts.create_notes(notes, type);
+							var $the_notes = Post_Notes_Posts.create_notes(notes, type);
 
-							$article.append(the_notes);
+							$article.append($the_notes);
 						}
 					}
 				}
@@ -230,47 +230,45 @@ var Post_Notes_Posts = function () {
 	}, {
 		key: "fetch_list_type",
 		value: function fetch_list_type() {
-			var type = arguments.length <= 0 || arguments[0] === undefined ? 2 : arguments[0];
+			var type = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
 
-			var list_type = "";
-
-			"Circle Inline List", "Decimal Inline List", "Decimal Leading Zero List", "Disc Inline List", "Lower Alpha Inline List", "Lower Greek Inline List", "Lower Roman Inline List", "Square Inline List", "Upper Alpha Inline List", "Upper Roman Inline List";
+			var list_type = "decimal";
 
 			switch (type) {
 
-				case 1:
+				case 0:
 					list_type = "circle";
 					break;
 
-				case 3:
+				case 2:
 					list_type = "decimal-leading-zero";
 					break;
 
-				case 4:
+				case 3:
 					list_type = "disc";
 					break;
 
-				case 5:
+				case 4:
 					list_type = "lower-alpha";
 					break;
 
-				case 6:
+				case 5:
 					list_type = "lower-greek";
 					break;
 
-				case 7:
+				case 6:
 					list_type = "lower-lower-roman";
 					break;
 
-				case 8:
+				case 7:
 					list_type = "square";
 					break;
 
-				case 9:
+				case 8:
 					list_type = "upper-alpha";
 					break;
 
-				case 10:
+				case 9:
 					list_type = "upper-roman";
 					break;
 
@@ -284,16 +282,51 @@ var Post_Notes_Posts = function () {
 			var notes = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
 			var type = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
 
-			var type_class = this.fetch_list_type(type);
-			var html = "<div class='post-notes'><ol class='" + type_class + "'>";
+			var $html = $("<div class='post-notes'></div>");
 
-			for (var n = 0, l = notes.length; n < l; ++n) {
-				html += "<li>" + Post_Notes.parse_note(notes[n]) + "</li>";
+			if (type < 10) {
+				var type_class = this.fetch_list_type(type);
+				var ol_html = "<ol class='" + type_class + "'>";
+
+				for (var n = 0, l = notes.length; n < l; ++n) {
+					ol_html += "<li>" + Post_Notes.parse_note(notes[n]) + "</li>";
+				}
+
+				ol_html += "</ol>";
+
+				$html.append(ol_html);
+			} else if (type == 10) {
+				var $content = $("<div class='post-notes-tabs'></div>");
+
+				var _loop = function _loop(_n, _l) {
+					var $button = $("<a href='#' role='button' class='button'>Note " + (_n + 1) + "</a>");
+
+					$button.on("click", function (e) {
+						pb.window.dialog("post-note-dialog", {
+
+							modal: false,
+							title: "Note" + (_n + 1),
+							html: Post_Notes.parse_note(notes[_n]),
+							dialogClass: "post-note-dialog",
+							resizable: false,
+							draggable: true
+
+						});
+
+						e.preventDefault();
+					});
+
+					$content.append($button);
+				};
+
+				for (var _n = 0, _l = notes.length; _n < _l; ++_n) {
+					_loop(_n, _l);
+				}
+
+				$html.append($content);
 			}
 
-			html += "</ol></div>";
-
-			return html;
+			return $html;
 		}
 	}]);
 
@@ -341,11 +374,16 @@ var Post_Notes_Tab = function () {
 			var post_id = post && post.id ? parseInt(post.id, 10) : null;
 			var notes_data = Post_Notes.fetch_notes(post_id);
 			var current_notes = notes_data.n || [];
-			var current_type = parseInt(notes_data.t, 10) || 2;
+			var current_type = parseInt(notes_data.t, 10) || 1;
 			var space_left = Post_Notes.MAX_KEY_SPACE - JSON.stringify(notes_data).length;
-			var html = "<div class='bbc-notes-header'><div class='bbc-post-notes-info'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>" + this.create_type_drop_down(current_type) + "</div>";
+			var html = "<div class='bbc-notes-header'><div class='bbc-post-notes-info'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>";
 
-			html += "<div class='bbc-note-box-wrapper'>";
+			html += "<div class='bbc-post-notes-type-wrapper'>";
+
+			html += this.create_additional_options(current_type);
+			html += this.create_type_drop_down(current_type);
+
+			html += "</div></div><div class='bbc-note-box-wrapper'>";
 
 			if (current_notes.length > 0) {
 				for (var n = 0, l = current_notes.length; n < l; ++n) {
@@ -366,24 +404,59 @@ var Post_Notes_Tab = function () {
 			return $html;
 		}
 	}, {
+		key: "create_additional_options",
+		value: function create_additional_options() {
+			var selected = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+
+			var html = "";
+
+			//html += "<input type='checkbox' value='11' id='bbc-post-notes-accordion' />";
+
+			return html;
+		}
+	}, {
 		key: "create_type_drop_down",
 		value: function create_type_drop_down() {
 			var selected = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
 
-			var html = "<div class='bbc-post-notes-type-wrapper'><strong>List Display Type: </strong>";
-			var options = ["Circle Inline List", "Decimal Inline List", "Decimal Leading Zero List", "Disc Inline List", "Lower Alpha Inline List", "Lower Greek Inline List", "Lower Roman Inline List", "Square Inline List", "Upper Alpha Inline List", "Upper Roman Inline List"];
+			var html = "<strong>List Display Type: </strong>";
+
+			var options = [{
+
+				label: "Inline Lists",
+				options: ["Circle", "Decimal", "Decimal Leading Zero", "Disc", "Lower Alpha", "Lower Greek", "Lower Roman", "Square", "Upper Alpha", "Upper Roman"]
+
+			}, {
+
+				label: "Inline Misc",
+				options: ["Inline Buttons"]
+
+			}];
 
 			html += "<select id='post-notes-display-type'>";
 
-			for (var o = 0, l = options.length; o < l; ++o) {
-				var sel = o + 1 == selected ? " selected='selected'" : "";
+			var go = 0;
+			var id = 0;
 
-				html += "<option" + sel + " value='" + (o + 1) + "'>" + options[o] + "</option>";
+			for (var o = 0, l = options.length; o < l; ++o) {
+				if (options[o].label) {
+					html += "<optgroup label='" + options[o].label + "'>";
+
+					var gl = gl = options[o].options.length;
+
+					for (go = 0; go < gl; ++go) {
+						var grp_sel = go + id == selected ? " selected='selected'" : "";
+
+						html += "<option" + grp_sel + " value='" + (go + id) + "'>" + options[o].options[go] + "</option>";
+					}
+
+					id = go;
+
+					html += "</optgroup>";
+				}
 			}
 
 			html += "</select>";
-
-			html += "</div>";
 
 			return html;
 		}
@@ -522,14 +595,10 @@ var Post_Notes_Tab = function () {
 		key: "over_space",
 		value: function over_space() {
 			var contents = this.fetch_contents();
-			var used = JSON.stringify({ n: contents, t: 1 }).length;
+			var used = JSON.stringify({ n: contents, t: 10 }).length;
 			var left = Post_Notes.MAX_KEY_SPACE - used;
 
-			if (left < 0) {
-				return true;
-			} else {
-				return false;
-			}
+			return left < 0;
 		}
 	}, {
 		key: "set_on",
@@ -539,7 +608,7 @@ var Post_Notes_Tab = function () {
 			var contents = this.fetch_contents();
 			var type = parseInt($("#post-notes-display-type").find(":selected").val() || 1, 10);
 
-			type = type < 1 || type > 10 ? 2 : type;
+			type = type < 0 || type > 11 ? 2 : type;
 
 			this.key.set_on(hook, post_id, {
 

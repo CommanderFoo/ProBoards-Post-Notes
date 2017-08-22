@@ -39,64 +39,53 @@ class Post_Notes_Posts {
 					let $article = $(this).find("article");
 
 					if($article.length == 1){
-						let the_notes = Post_Notes_Posts.create_notes(notes, type);
+						let $the_notes = Post_Notes_Posts.create_notes(notes, type);
 
-						$article.append(the_notes);
+						$article.append($the_notes);
 					}
 				}
 			}
 		})
 	}
 
-	static fetch_list_type(type = 2){
-		let list_type = "";
-
-		"Circle Inline List",
-			"Decimal Inline List",
-			"Decimal Leading Zero List",
-			"Disc Inline List",
-			"Lower Alpha Inline List",
-			"Lower Greek Inline List",
-			"Lower Roman Inline List",
-			"Square Inline List",
-			"Upper Alpha Inline List",
-			"Upper Roman Inline List"
+	static fetch_list_type(type = 1){
+		let list_type = "decimal";
 
 		switch(type){
 
-			case 1 :
+			case 0 :
 				list_type = "circle";
 				break;
 
-			case 3 :
+			case 2 :
 				list_type = "decimal-leading-zero";
 				break;
 
-			case 4 :
+			case 3 :
 				list_type = "disc";
 				break;
 
-			case 5 :
+			case 4 :
 				list_type = "lower-alpha";
 				break;
 
-			case 6 :
+			case 5 :
 				list_type = "lower-greek";
 				break;
 
-			case 7 :
+			case 6 :
 				list_type = "lower-lower-roman";
 				break;
 
-			case 8 :
+			case 7 :
 				list_type = "square";
 				break;
 
-			case 9 :
+			case 8 :
 				list_type = "upper-alpha";
 				break;
 
-			case 10 :
+			case 9 :
 				list_type = "upper-roman";
 				break;
 
@@ -106,16 +95,48 @@ class Post_Notes_Posts {
 	}
 
 	static create_notes(notes = [], type = 1){
-		let type_class = this.fetch_list_type(type);
-		let html = "<div class='post-notes'><ol class='" + type_class + "'>";
+		let $html = $("<div class='post-notes'></div>");
 
-		for(let n = 0, l = notes.length; n < l; ++ n){
-			html += "<li>" + Post_Notes.parse_note(notes[n]) + "</li>";
+		if(type < 10){
+			let type_class = this.fetch_list_type(type);
+			let ol_html = "<ol class='" + type_class + "'>";
+
+			for(let n = 0, l = notes.length; n < l; ++ n){
+				ol_html += "<li>" + Post_Notes.parse_note(notes[n]) + "</li>";
+			}
+
+			ol_html += "</ol>";
+
+			$html.append(ol_html);
+		} else if(type == 10){
+			let $content = $("<div class='post-notes-tabs'></div>");
+
+
+			for(let n = 0, l = notes.length; n < l; ++ n){
+				let $button = $("<a href='#' role='button' class='button'>Note " + (n + 1) + "</a>");
+
+				$button.on("click", (e) => {
+					pb.window.dialog("post-note-dialog", {
+
+						modal: false,
+						title: "Note " + (n + 1),
+						html: Post_Notes.parse_note(notes[n]),
+						dialogClass: "post-note-dialog",
+						resizable: false,
+						draggable: true
+
+					});
+
+					e.preventDefault();
+				});
+
+				$content.append($button);
+			}
+
+			$html.append($content);
 		}
 
-		html += "</ol></div>";
-
-		return html;
+		return $html;
 	}
 
 }

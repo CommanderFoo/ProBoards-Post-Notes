@@ -184,64 +184,53 @@ class Post_Notes_Posts {
 					let $article = $(this).find("article");
 
 					if($article.length == 1){
-						let the_notes = Post_Notes_Posts.create_notes(notes, type);
+						let $the_notes = Post_Notes_Posts.create_notes(notes, type);
 
-						$article.append(the_notes);
+						$article.append($the_notes);
 					}
 				}
 			}
 		})
 	}
 
-	static fetch_list_type(type = 2){
-		let list_type = "";
-
-		"Circle Inline List",
-			"Decimal Inline List",
-			"Decimal Leading Zero List",
-			"Disc Inline List",
-			"Lower Alpha Inline List",
-			"Lower Greek Inline List",
-			"Lower Roman Inline List",
-			"Square Inline List",
-			"Upper Alpha Inline List",
-			"Upper Roman Inline List"
+	static fetch_list_type(type = 1){
+		let list_type = "decimal";
 
 		switch(type){
 
-			case 1 :
+			case 0 :
 				list_type = "circle";
 				break;
 
-			case 3 :
+			case 2 :
 				list_type = "decimal-leading-zero";
 				break;
 
-			case 4 :
+			case 3 :
 				list_type = "disc";
 				break;
 
-			case 5 :
+			case 4 :
 				list_type = "lower-alpha";
 				break;
 
-			case 6 :
+			case 5 :
 				list_type = "lower-greek";
 				break;
 
-			case 7 :
+			case 6 :
 				list_type = "lower-lower-roman";
 				break;
 
-			case 8 :
+			case 7 :
 				list_type = "square";
 				break;
 
-			case 9 :
+			case 8 :
 				list_type = "upper-alpha";
 				break;
 
-			case 10 :
+			case 9 :
 				list_type = "upper-roman";
 				break;
 
@@ -251,16 +240,48 @@ class Post_Notes_Posts {
 	}
 
 	static create_notes(notes = [], type = 1){
-		let type_class = this.fetch_list_type(type);
-		let html = "<div class='post-notes'><ol class='" + type_class + "'>";
+		let $html = $("<div class='post-notes'></div>");
 
-		for(let n = 0, l = notes.length; n < l; ++ n){
-			html += "<li>" + Post_Notes.parse_note(notes[n]) + "</li>";
+		if(type < 10){
+			let type_class = this.fetch_list_type(type);
+			let ol_html = "<ol class='" + type_class + "'>";
+
+			for(let n = 0, l = notes.length; n < l; ++ n){
+				ol_html += "<li>" + Post_Notes.parse_note(notes[n]) + "</li>";
+			}
+
+			ol_html += "</ol>";
+
+			$html.append(ol_html);
+		} else if(type == 10){
+			let $content = $("<div class='post-notes-tabs'></div>");
+
+
+			for(let n = 0, l = notes.length; n < l; ++ n){
+				let $button = $("<a href='#' role='button' class='button'>Note " + (n + 1) + "</a>");
+
+				$button.on("click", (e) => {
+					pb.window.dialog("post-note-dialog", {
+
+						modal: false,
+						title: "Note" + (n + 1),
+						html: Post_Notes.parse_note(notes[n]),
+						dialogClass: "post-note-dialog",
+						resizable: false,
+						draggable: true
+
+					});
+
+					e.preventDefault();
+				});
+
+				$content.append($button);
+			}
+
+			$html.append($content);
 		}
 
-		html += "</ol></div>";
-
-		return html;
+		return $html;
 	}
 
 }
@@ -307,11 +328,16 @@ class Post_Notes_Tab {
 		let post_id = (post && post.id)? parseInt(post.id, 10) : null;
 		let notes_data = Post_Notes.fetch_notes(post_id);
 		let current_notes = notes_data.n || [];
-		let current_type = parseInt(notes_data.t, 10) || 2;
+		let current_type = parseInt(notes_data.t, 10) || 1;
 		let space_left = Post_Notes.MAX_KEY_SPACE - JSON.stringify(notes_data).length;
-		let html = "<div class='bbc-notes-header'><div class='bbc-post-notes-info'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>" + this.create_type_drop_down(current_type) + "</div>";
+		let html = "<div class='bbc-notes-header'><div class='bbc-post-notes-info'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>";
 
-		html += "<div class='bbc-note-box-wrapper'>";
+		html += "<div class='bbc-post-notes-type-wrapper'>";
+
+		html += this.create_additional_options(current_type);
+		html += this.create_type_drop_down(current_type);
+
+		html += "</div></div><div class='bbc-note-box-wrapper'>";
 
 		if(current_notes.length > 0){
 			for(let n = 0, l = current_notes.length; n < l; ++ n){
@@ -332,34 +358,72 @@ class Post_Notes_Tab {
 		return $html;
 	}
 
+	static create_additional_options(selected = 1){
+		let html = "";
+
+		//html += "<input type='checkbox' value='11' id='bbc-post-notes-accordion' />";
+
+		return html;
+	}
+
 	static create_type_drop_down(selected = 1){
-		let html = "<div class='bbc-post-notes-type-wrapper'><strong>List Display Type: </strong>";
+		let html = "<strong>List Display Type: </strong>";
+
 		let options = [
 
-			"Circle Inline List",
-			"Decimal Inline List",
-			"Decimal Leading Zero List",
-			"Disc Inline List",
-			"Lower Alpha Inline List",
-			"Lower Greek Inline List",
-			"Lower Roman Inline List",
-			"Square Inline List",
-			"Upper Alpha Inline List",
-			"Upper Roman Inline List"
+			{
 
+				label: "Inline Lists",
+				options: [
+
+					"Circle",
+					"Decimal",
+					"Decimal Leading Zero",
+					"Disc",
+					"Lower Alpha",
+					"Lower Greek",
+					"Lower Roman",
+					"Square",
+					"Upper Alpha",
+					"Upper Roman"
+
+				]
+
+			},
+
+
+			{
+
+				label: "Inline Misc",
+				options: ["Inline Buttons"]
+
+			}
 		];
 
 		html += "<select id='post-notes-display-type'>";
 
-		for(let o = 0, l = options.length; o < l; ++ o){
-			let sel = ((o + 1) == selected)? " selected='selected'" : "";
+		let go = 0;
+		let id = 0;
 
-			html += "<option" + sel + " value='" + (o + 1) + "'>" + options[o] + "</option>";
+		for(let o = 0, l = options.length; o < l; ++ o){
+			if(options[o].label){
+				html += "<optgroup label='" + options[o].label + "'>";
+
+				let gl = gl = options[o].options.length;
+
+				for(go = 0; go < gl; ++ go){
+					let grp_sel = ((go + id) == selected)? " selected='selected'" : "";
+
+					html += "<option" + grp_sel + " value='" + (go + id) + "'>" + options[o].options[go] + "</option>";
+				}
+
+				id = go;
+
+				html += "</optgroup>";
+			}
 		}
 
 		html += "</select>";
-
-		html += "</div>";
 
 		return html;
 	}
@@ -482,14 +546,10 @@ class Post_Notes_Tab {
 
 	static over_space(){
 		let contents = this.fetch_contents();
-		let used = JSON.stringify({n: contents, t: 1}).length;
+		let used = JSON.stringify({n: contents, t: 10}).length;
 		let left = Post_Notes.MAX_KEY_SPACE - used;
 
-		if(left < 0){
-			return true;
-		} else {
-			return false;
-		}
+		return (left < 0);
 	}
 
 	static set_on(hook){
@@ -498,7 +558,7 @@ class Post_Notes_Tab {
 		let contents = this.fetch_contents();
 		let type = parseInt($("#post-notes-display-type").find(":selected").val() || 1, 10);
 
-		type = (type < 1 || type > 10)? 2 : type;
+		type = (type < 0 || type > 11)? 2 : type;
 
 		this.key.set_on(hook, post_id, {
 
