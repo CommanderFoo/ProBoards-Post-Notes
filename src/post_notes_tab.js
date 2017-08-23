@@ -106,10 +106,16 @@ class Post_Notes_Tab {
 
 			{
 
-				label: "Inline Misc",
-				options: ["Inline Buttons"]
+				label: "Misc",
+				options: [
+
+					"Inline Buttons",
+					"Side of Post Tabbed"
+
+				]
 
 			}
+
 		];
 
 		html += "<select id='post-notes-display-type'>";
@@ -270,7 +276,7 @@ class Post_Notes_Tab {
 		let contents = this.fetch_contents();
 		let type = parseInt($("#post-notes-display-type").find(":selected").val() || 1, 10);
 
-		type = (type < 0 || type > 11)? 2 : type;
+		type = (type < 0 || type > 12)? 2 : type;
 
 		this.key.set_on(hook, post_id, {
 

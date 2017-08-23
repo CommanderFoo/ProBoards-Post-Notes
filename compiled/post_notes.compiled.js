@@ -295,35 +295,39 @@ var Post_Notes_Posts = function () {
 				ol_html += "</ol>";
 
 				$html.append(ol_html);
-			} else if (type == 10) {
-				var $content = $("<div class='post-notes-tabs'></div>");
+			} else if (type == 10 || type == 11) {
+				if (type == 11) {
+					console.log("Side of posts");
+				} else {
+					var $content = $("<div class='post-notes-tabs'></div>");
 
-				var _loop = function _loop(_n, _l) {
-					var $button = $("<a href='#' role='button' class='button'>Note " + (_n + 1) + "</a>");
+					var _loop = function _loop(_n, _l) {
+						var $button = $("<a href='#' role='button' class='button'>Note " + (_n + 1) + "</a>");
 
-					$button.on("click", function (e) {
-						pb.window.dialog("post-note-dialog", {
+						$button.on("click", function (e) {
+							pb.window.dialog("post-note-dialog", {
 
-							modal: false,
-							title: "Note" + (_n + 1),
-							html: Post_Notes.parse_note(notes[_n]),
-							dialogClass: "post-note-dialog",
-							resizable: false,
-							draggable: true
+								modal: false,
+								title: "Note " + (_n + 1),
+								html: Post_Notes.parse_note(notes[_n]),
+								dialogClass: "post-note-dialog",
+								resizable: false,
+								draggable: true
 
+							});
+
+							e.preventDefault();
 						});
 
-						e.preventDefault();
-					});
+						$content.append($button);
+					};
 
-					$content.append($button);
-				};
+					for (var _n = 0, _l = notes.length; _n < _l; ++_n) {
+						_loop(_n, _l);
+					}
 
-				for (var _n = 0, _l = notes.length; _n < _l; ++_n) {
-					_loop(_n, _l);
+					$html.append($content);
 				}
-
-				$html.append($content);
 			}
 
 			return $html;
@@ -428,8 +432,8 @@ var Post_Notes_Tab = function () {
 
 			}, {
 
-				label: "Inline Misc",
-				options: ["Inline Buttons"]
+				label: "Misc",
+				options: ["Inline Buttons", "Side of Post Tabbed"]
 
 			}];
 
@@ -608,7 +612,7 @@ var Post_Notes_Tab = function () {
 			var contents = this.fetch_contents();
 			var type = parseInt($("#post-notes-display-type").find(":selected").val() || 1, 10);
 
-			type = type < 0 || type > 11 ? 2 : type;
+			type = type < 0 || type > 12 ? 2 : type;
 
 			this.key.set_on(hook, post_id, {
 

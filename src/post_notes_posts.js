@@ -108,32 +108,35 @@ class Post_Notes_Posts {
 			ol_html += "</ol>";
 
 			$html.append(ol_html);
-		} else if(type == 10){
-			let $content = $("<div class='post-notes-tabs'></div>");
+		} else if(type == 10 || type == 11){
+			if(type == 11){
+				console.log("Side of posts");
+			} else {
+				let $content = $("<div class='post-notes-tabs'></div>");
 
+				for(let n = 0, l = notes.length; n < l; ++ n){
+					let $button = $("<a href='#' role='button' class='button'>Note " + (n + 1) + "</a>");
 
-			for(let n = 0, l = notes.length; n < l; ++ n){
-				let $button = $("<a href='#' role='button' class='button'>Note " + (n + 1) + "</a>");
+					$button.on("click", (e) => {
+						pb.window.dialog("post-note-dialog", {
 
-				$button.on("click", (e) => {
-					pb.window.dialog("post-note-dialog", {
+							modal: false,
+							title: "Note " + (n + 1),
+							html: Post_Notes.parse_note(notes[n]),
+							dialogClass: "post-note-dialog",
+							resizable: false,
+							draggable: true
 
-						modal: false,
-						title: "Note " + (n + 1),
-						html: Post_Notes.parse_note(notes[n]),
-						dialogClass: "post-note-dialog",
-						resizable: false,
-						draggable: true
+						});
 
+						e.preventDefault();
 					});
 
-					e.preventDefault();
-				});
+					$content.append($button);
+				}
 
-				$content.append($button);
+				$html.append($content);
 			}
-
-			$html.append($content);
 		}
 
 		return $html;
