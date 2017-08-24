@@ -1,9 +1,7 @@
-Post Notes
-===========
+Post Notes 1.0.0
+================
 
-Unfinished.  
-
-Doesn't do the displaying of the notes, only the creating of them.
+WIP
 
 support.proboards.com/thread/615273/post-side-notes
 
