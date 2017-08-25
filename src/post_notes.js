@@ -48,7 +48,7 @@ class Post_Notes {
 
 		let data = pb.plugin.key(Post_Notes.PLUGIN_KEY).get(post_id);
 
-		if(data && data.n && data.t){
+		if(data && data.n){
 			return data;
 		}
 

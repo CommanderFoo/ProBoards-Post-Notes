@@ -33,7 +33,7 @@ class Post_Notes_Posts {
 			if(post_id){
 				let post_notes = Post_Notes.fetch_notes(post_id);
 				let notes = post_notes.n || [];
-				let type = parseInt(post_notes.t || 1, 10);
+				let type = parseInt(post_notes.t || 0, 10);
 
 				if(notes.length > 0){
 					let $article = $(this).find("article");
@@ -48,13 +48,17 @@ class Post_Notes_Posts {
 		})
 	}
 
-	static fetch_list_type(type = 1){
+	static fetch_list_type(type = 0){
 		let list_type = "decimal";
 
 		switch(type){
 
 			case 0 :
 				list_type = "circle";
+				break;
+
+			case 1 :
+				list_type = "decimal";
 				break;
 
 			case 2 :
@@ -94,7 +98,7 @@ class Post_Notes_Posts {
 		return list_type;
 	}
 
-	static create_notes(notes = [], type = 1){
+	static create_notes(notes = [], type = 0){
 		let $html = $("<div class='post-notes'></div>");
 
 		if(type < 10){
@@ -109,34 +113,30 @@ class Post_Notes_Posts {
 
 			$html.append(ol_html);
 		} else if(type == 10 || type == 11){
-			if(type == 11){
-				console.log("Side of posts");
-			} else {
-				let $content = $("<div class='post-notes-tabs'></div>");
+			let $content = $("<div class='post-notes-tabs'></div>");
 
-				for(let n = 0, l = notes.length; n < l; ++ n){
-					let $button = $("<a href='#' role='button' class='button'>Note " + (n + 1) + "</a>");
+			for(let n = 0, l = notes.length; n < l; ++ n){
+				let $button = $("<a href='#' role='button' class='button'>Note " + (n + 1) + "</a>");
 
-					$button.on("click", (e) => {
-						pb.window.dialog("post-note-dialog", {
+				$button.on("click", (e) => {
+					pb.window.dialog("post-note-dialog", {
 
-							modal: false,
-							title: "Note " + (n + 1),
-							html: Post_Notes.parse_note(notes[n]),
-							dialogClass: "post-note-dialog",
-							resizable: false,
-							draggable: true
+						modal: false,
+						title: "Note " + (n + 1),
+						html: Post_Notes.parse_note(notes[n]),
+						dialogClass: "post-note-dialog",
+						resizable: false,
+						draggable: true
 
-						});
-
-						e.preventDefault();
 					});
 
-					$content.append($button);
-				}
+					e.preventDefault();
+				});
 
-				$html.append($content);
+				$content.append($button);
 			}
+
+			$html.append($content);
 		}
 
 		return $html;

@@ -163,7 +163,7 @@ var Post_Notes = function () {
 
 			var data = pb.plugin.key(Post_Notes.PLUGIN_KEY).get(post_id);
 
-			if (data && data.n && data.t) {
+			if (data && data.n) {
 				return data;
 			}
 
@@ -213,7 +213,7 @@ var Post_Notes_Posts = function () {
 				if (post_id) {
 					var post_notes = Post_Notes.fetch_notes(post_id);
 					var notes = post_notes.n || [];
-					var type = parseInt(post_notes.t || 1, 10);
+					var type = parseInt(post_notes.t || 0, 10);
 
 					if (notes.length > 0) {
 						var $article = $(this).find("article");
@@ -230,7 +230,7 @@ var Post_Notes_Posts = function () {
 	}, {
 		key: "fetch_list_type",
 		value: function fetch_list_type() {
-			var type = arguments.length <= 0 || arguments[0] === undefined ? 1 : arguments[0];
+			var type = arguments.length <= 0 || arguments[0] === undefined ? 0 : arguments[0];
 
 			var list_type = "decimal";
 
@@ -238,6 +238,10 @@ var Post_Notes_Posts = function () {
 
 				case 0:
 					list_type = "circle";
+					break;
+
+				case 1:
+					list_type = "decimal";
 					break;
 
 				case 2:
@@ -280,7 +284,7 @@ var Post_Notes_Posts = function () {
 		key: "create_notes",
 		value: function create_notes() {
 			var notes = arguments.length <= 0 || arguments[0] === undefined ? [] : arguments[0];
-			var type = arguments.length <= 1 || arguments[1] === undefined ? 1 : arguments[1];
+			var type = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
 
 			var $html = $("<div class='post-notes'></div>");
 
@@ -296,38 +300,34 @@ var Post_Notes_Posts = function () {
 
 				$html.append(ol_html);
 			} else if (type == 10 || type == 11) {
-				if (type == 11) {
-					console.log("Side of posts");
-				} else {
-					var $content = $("<div class='post-notes-tabs'></div>");
+				var $content = $("<div class='post-notes-tabs'></div>");
 
-					var _loop = function _loop(_n, _l) {
-						var $button = $("<a href='#' role='button' class='button'>Note " + (_n + 1) + "</a>");
+				var _loop = function _loop(_n, _l) {
+					var $button = $("<a href='#' role='button' class='button'>Note " + (_n + 1) + "</a>");
 
-						$button.on("click", function (e) {
-							pb.window.dialog("post-note-dialog", {
+					$button.on("click", function (e) {
+						pb.window.dialog("post-note-dialog", {
 
-								modal: false,
-								title: "Note " + (_n + 1),
-								html: Post_Notes.parse_note(notes[_n]),
-								dialogClass: "post-note-dialog",
-								resizable: false,
-								draggable: true
+							modal: false,
+							title: "Note " + (_n + 1),
+							html: Post_Notes.parse_note(notes[_n]),
+							dialogClass: "post-note-dialog",
+							resizable: false,
+							draggable: true
 
-							});
-
-							e.preventDefault();
 						});
 
-						$content.append($button);
-					};
+						e.preventDefault();
+					});
 
-					for (var _n = 0, _l = notes.length; _n < _l; ++_n) {
-						_loop(_n, _l);
-					}
+					$content.append($button);
+				};
 
-					$html.append($content);
+				for (var _n = 0, _l = notes.length; _n < _l; ++_n) {
+					_loop(_n, _l);
 				}
+
+				$html.append($content);
 			}
 
 			return $html;
@@ -378,7 +378,7 @@ var Post_Notes_Tab = function () {
 			var post_id = post && post.id ? parseInt(post.id, 10) : null;
 			var notes_data = Post_Notes.fetch_notes(post_id);
 			var current_notes = notes_data.n || [];
-			var current_type = parseInt(notes_data.t, 10) || 1;
+			var current_type = parseInt(notes_data.t, 10) || 0;
 			var space_left = Post_Notes.MAX_KEY_SPACE - JSON.stringify(notes_data).length;
 			var html = "<div class='bbc-notes-header'><div class='bbc-post-notes-info'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>";
 
@@ -433,7 +433,7 @@ var Post_Notes_Tab = function () {
 			}, {
 
 				label: "Misc",
-				options: ["Inline Buttons", "Side of Post Tabbed"]
+				options: ["Inline Buttons"]
 
 			}];
 
@@ -610,9 +610,9 @@ var Post_Notes_Tab = function () {
 			var post = pb.data("page").post;
 			var post_id = post && post.id ? parseInt(post.id, 10) : null;
 			var contents = this.fetch_contents();
-			var type = parseInt($("#post-notes-display-type").find(":selected").val() || 1, 10);
+			var type = parseInt($("#post-notes-display-type").find(":selected").val() || 0, 10);
 
-			type = type < 0 || type > 12 ? 2 : type;
+			type = type < 0 || type > 11 ? 2 : type;
 
 			this.key.set_on(hook, post_id, {
 

@@ -40,7 +40,7 @@ class Post_Notes_Tab {
 		let post_id = (post && post.id)? parseInt(post.id, 10) : null;
 		let notes_data = Post_Notes.fetch_notes(post_id);
 		let current_notes = notes_data.n || [];
-		let current_type = parseInt(notes_data.t, 10) || 1;
+		let current_type = parseInt(notes_data.t, 10) || 0;
 		let space_left = Post_Notes.MAX_KEY_SPACE - JSON.stringify(notes_data).length;
 		let html = "<div class='bbc-notes-header'><div class='bbc-post-notes-info'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>";
 
@@ -109,8 +109,7 @@ class Post_Notes_Tab {
 				label: "Misc",
 				options: [
 
-					"Inline Buttons",
-					"Side of Post Tabbed"
+					"Inline Buttons"
 
 				]
 
@@ -274,9 +273,9 @@ class Post_Notes_Tab {
 		let post = pb.data("page").post;
 		let post_id = (post && post.id)? parseInt(post.id, 10) : null;
 		let contents = this.fetch_contents();
-		let type = parseInt($("#post-notes-display-type").find(":selected").val() || 1, 10);
+		let type = parseInt($("#post-notes-display-type").find(":selected").val() || 0, 10);
 
-		type = (type < 0 || type > 12)? 2 : type;
+		type = (type < 0 || type > 11)? 2 : type;
 
 		this.key.set_on(hook, post_id, {
 

@@ -130,7 +130,7 @@ class Post_Notes {
 
 		let data = pb.plugin.key(Post_Notes.PLUGIN_KEY).get(post_id);
 
-		if(data && data.n && data.t){
+		if(data && data.n){
 			return data;
 		}
 
@@ -178,7 +178,7 @@ class Post_Notes_Posts {
 			if(post_id){
 				let post_notes = Post_Notes.fetch_notes(post_id);
 				let notes = post_notes.n || [];
-				let type = parseInt(post_notes.t || 1, 10);
+				let type = parseInt(post_notes.t || 0, 10);
 
 				if(notes.length > 0){
 					let $article = $(this).find("article");
@@ -193,13 +193,17 @@ class Post_Notes_Posts {
 		})
 	}
 
-	static fetch_list_type(type = 1){
+	static fetch_list_type(type = 0){
 		let list_type = "decimal";
 
 		switch(type){
 
 			case 0 :
 				list_type = "circle";
+				break;
+
+			case 1 :
+				list_type = "decimal";
 				break;
 
 			case 2 :
@@ -239,7 +243,7 @@ class Post_Notes_Posts {
 		return list_type;
 	}
 
-	static create_notes(notes = [], type = 1){
+	static create_notes(notes = [], type = 0){
 		let $html = $("<div class='post-notes'></div>");
 
 		if(type < 10){
@@ -254,34 +258,30 @@ class Post_Notes_Posts {
 
 			$html.append(ol_html);
 		} else if(type == 10 || type == 11){
-			if(type == 11){
-				console.log("Side of posts");
-			} else {
-				let $content = $("<div class='post-notes-tabs'></div>");
+			let $content = $("<div class='post-notes-tabs'></div>");
 
-				for(let n = 0, l = notes.length; n < l; ++ n){
-					let $button = $("<a href='#' role='button' class='button'>Note " + (n + 1) + "</a>");
+			for(let n = 0, l = notes.length; n < l; ++ n){
+				let $button = $("<a href='#' role='button' class='button'>Note " + (n + 1) + "</a>");
 
-					$button.on("click", (e) => {
-						pb.window.dialog("post-note-dialog", {
+				$button.on("click", (e) => {
+					pb.window.dialog("post-note-dialog", {
 
-							modal: false,
-							title: "Note " + (n + 1),
-							html: Post_Notes.parse_note(notes[n]),
-							dialogClass: "post-note-dialog",
-							resizable: false,
-							draggable: true
+						modal: false,
+						title: "Note " + (n + 1),
+						html: Post_Notes.parse_note(notes[n]),
+						dialogClass: "post-note-dialog",
+						resizable: false,
+						draggable: true
 
-						});
-
-						e.preventDefault();
 					});
 
-					$content.append($button);
-				}
+					e.preventDefault();
+				});
 
-				$html.append($content);
+				$content.append($button);
 			}
+
+			$html.append($content);
 		}
 
 		return $html;
@@ -331,7 +331,7 @@ class Post_Notes_Tab {
 		let post_id = (post && post.id)? parseInt(post.id, 10) : null;
 		let notes_data = Post_Notes.fetch_notes(post_id);
 		let current_notes = notes_data.n || [];
-		let current_type = parseInt(notes_data.t, 10) || 1;
+		let current_type = parseInt(notes_data.t, 10) || 0;
 		let space_left = Post_Notes.MAX_KEY_SPACE - JSON.stringify(notes_data).length;
 		let html = "<div class='bbc-notes-header'><div class='bbc-post-notes-info'><img id='notes-space-left-img' src='" + Post_Notes.images.warning + "' title='If you go over the max space allowed, your notes will be lost.' /> <strong>Space Left:</strong> <div id='notes-space-left'>" + space_left + "</div></div>";
 
@@ -400,8 +400,7 @@ class Post_Notes_Tab {
 				label: "Misc",
 				options: [
 
-					"Inline Buttons",
-					"Side of Post Tabbed"
+					"Inline Buttons"
 
 				]
 
@@ -565,9 +564,9 @@ class Post_Notes_Tab {
 		let post = pb.data("page").post;
 		let post_id = (post && post.id)? parseInt(post.id, 10) : null;
 		let contents = this.fetch_contents();
-		let type = parseInt($("#post-notes-display-type").find(":selected").val() || 1, 10);
+		let type = parseInt($("#post-notes-display-type").find(":selected").val() || 0, 10);
 
-		type = (type < 0 || type > 12)? 2 : type;
+		type = (type < 0 || type > 11)? 2 : type;
 
 		this.key.set_on(hook, post_id, {
 

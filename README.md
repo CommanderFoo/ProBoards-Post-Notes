@@ -1,8 +1,8 @@
 Post Notes 1.0.0
 ================
 
-WIP
+Am unreleased plugin that allows members to attache notes to their posts.
 
-support.proboards.com/thread/615273/post-side-notes
+![Screen Shot](http://i.imgur.com/8wXPVGz.png)
 
-![Screen Shot](http://i.imgur.com/QPCDgt3.gif)
+![Screen Shot](http://i.imgur.com/Yph0w2s.png)
